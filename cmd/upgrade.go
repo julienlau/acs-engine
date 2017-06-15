@@ -7,9 +7,9 @@ import (
 	"os"
 	"path"
 
-	"github.com/Azure/acs-engine/pkg/api"
-	"github.com/Azure/acs-engine/pkg/armhelpers"
-	"github.com/Azure/acs-engine/pkg/operations/kubernetesupgrade"
+	"acs-engine/pkg/api"
+	"acs-engine/pkg/armhelpers"
+	"acs-engine/pkg/operations/kubernetesupgrade"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"

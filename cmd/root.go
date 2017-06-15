@@ -3,7 +3,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/Azure/acs-engine/pkg/armhelpers"
+	"acs-engine/pkg/armhelpers"
 
 	"github.com/Azure/go-autorest/autorest/azure"
 	log "github.com/Sirupsen/logrus"

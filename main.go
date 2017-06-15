@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/Azure/acs-engine/cmd"
+	"acs-engine/cmd"
 	log "github.com/Sirupsen/logrus"
 )
 

@@ -6,7 +6,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/Azure/acs-engine/pkg/api"
+	"acs-engine/pkg/api"
 )
 
 func WriteArtifacts(containerService *api.ContainerService, apiVersion, template, parameters, artifactsDir string, certsGenerated bool, parametersOnly bool) error {

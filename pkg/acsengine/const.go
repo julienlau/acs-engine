@@ -1,7 +1,7 @@
 package acsengine
 
 import (
-	"github.com/Azure/acs-engine/pkg/api"
+	"acs-engine/pkg/api"
 )
 
 const (

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/Azure/acs-engine/pkg/api/vlabs"
+	"acs-engine/pkg/api/vlabs"
 )
 
 // LoadUpgradeContainerServiceFromFile loads an ACS Cluster API Model from a JSON file

@@ -9,7 +9,7 @@ BUILD=`date +%FT%T%z`
 # of requirements around $GOPATH. The extra sed is needed because `gofmt`
 # operates on paths, go list returns package names, and `go fmt` always rewrites
 # which is not what we need to do in the `test_fmt` target.
-GOFILES=`go list ./... | grep -v "github.com/Azure/acs-engine/vendor" | sed 's|github.com/Azure/acs-engine|.|g' | grep -v -w '^.$$'`
+GOFILES=`go list ./... | grep -v "acs-engine/vendor" | sed 's|github.com/Azure/acs-engine|.|g' | grep -v -w '^.$$'`
 
 all: build
 
@@ -20,7 +20,7 @@ prereqs:
 
 _build:
 	go generate -v $(GOFILES)
-	go build -v -ldflags="-X github.com/Azure/acs-engine/cmd.BuildSHA=${VERSION} -X github.com/Azure/acs-engine/cmd.BuildTime=${BUILD}"
+	go build -v 
 	cd test/acs-engine-test; go build -v
 
 build: prereqs _build

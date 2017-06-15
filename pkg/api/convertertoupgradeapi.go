@@ -1,6 +1,6 @@
 package api
 
-import "github.com/Azure/acs-engine/pkg/api/vlabs"
+import "acs-engine/pkg/api/vlabs"
 
 ///////////////////////////////////////////////////////////
 // The converter exposes functions to convert the top level

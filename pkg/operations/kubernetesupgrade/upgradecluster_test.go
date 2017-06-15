@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Azure/acs-engine/pkg/api"
-	"github.com/Azure/acs-engine/pkg/armhelpers"
+	"acs-engine/pkg/api"
+	"acs-engine/pkg/armhelpers"
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
 	"github.com/satori/go.uuid"

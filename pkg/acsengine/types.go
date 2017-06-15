@@ -1,9 +1,9 @@
 package acsengine
 
 import (
-	"github.com/Azure/acs-engine/pkg/api"
-	"github.com/Azure/acs-engine/pkg/api/v20160330"
-	"github.com/Azure/acs-engine/pkg/api/vlabs"
+	"acs-engine/pkg/api"
+	"acs-engine/pkg/api/v20160330"
+	"acs-engine/pkg/api/vlabs"
 )
 
 // DCOSNodeType represents the type of DCOS Node

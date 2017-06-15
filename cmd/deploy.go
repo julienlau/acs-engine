@@ -12,9 +12,9 @@ import (
 
 	"encoding/json"
 
-	"github.com/Azure/acs-engine/pkg/acsengine"
-	"github.com/Azure/acs-engine/pkg/api"
-	"github.com/Azure/acs-engine/pkg/armhelpers"
+	"acs-engine/pkg/acsengine"
+	"acs-engine/pkg/api"
+	"acs-engine/pkg/armhelpers"
 )
 
 const (

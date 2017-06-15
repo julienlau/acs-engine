@@ -5,9 +5,9 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/Azure/acs-engine/pkg/api"
-	"github.com/Azure/acs-engine/pkg/armhelpers"
-	"github.com/Azure/acs-engine/pkg/operations"
+	"acs-engine/pkg/api"
+	"acs-engine/pkg/armhelpers"
+	"acs-engine/pkg/operations"
 
 	log "github.com/Sirupsen/logrus"
 )

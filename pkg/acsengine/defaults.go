@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/Azure/acs-engine/pkg/api"
+	"acs-engine/pkg/api"
 )
 
 var (

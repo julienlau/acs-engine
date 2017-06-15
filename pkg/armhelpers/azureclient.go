@@ -23,7 +23,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/mitchellh/go-homedir"
 
-	"github.com/Azure/acs-engine/pkg/acsengine"
+	"acs-engine/pkg/acsengine"
 )
 
 const (
