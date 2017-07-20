@@ -8,6 +8,7 @@ import (
 	"acs-engine/pkg/api/v20160330"
 	"acs-engine/pkg/api/v20160930"
 	"acs-engine/pkg/api/v20170131"
+	"acs-engine/pkg/api/v20170701"
 	"acs-engine/pkg/api/vlabs"
 )
 
@@ -40,6 +41,7 @@ func LoadContainerService(contents []byte, version string) (*ContainerService, e
 		if e := json.Unmarshal(contents, &containerService); e != nil {
 			return nil, e
 		}
+		setContainerServiceDefaultsv20160930(containerService)
 		if e := containerService.Properties.Validate(); e != nil {
 			return nil, e
 		}
@@ -50,6 +52,7 @@ func LoadContainerService(contents []byte, version string) (*ContainerService, e
 		if e := json.Unmarshal(contents, &containerService); e != nil {
 			return nil, e
 		}
+		setContainerServiceDefaultsv20160330(containerService)
 		if e := containerService.Properties.Validate(); e != nil {
 			return nil, e
 		}
@@ -60,10 +63,21 @@ func LoadContainerService(contents []byte, version string) (*ContainerService, e
 		if e := json.Unmarshal(contents, &containerService); e != nil {
 			return nil, e
 		}
+		setContainerServiceDefaultsv20170131(containerService)
 		if e := containerService.Properties.Validate(); e != nil {
 			return nil, e
 		}
 		return ConvertV20170131ContainerService(containerService), nil
+
+	case v20170701.APIVersion:
+		containerService := &v20170701.ContainerService{}
+		if e := json.Unmarshal(contents, &containerService); e != nil {
+			return nil, e
+		}
+		if e := containerService.Properties.Validate(); e != nil {
+			return nil, e
+		}
+		return ConvertV20170701ContainerService(containerService), nil
 
 	case vlabs.APIVersion:
 		containerService := &vlabs.ContainerService{}
@@ -116,6 +130,17 @@ func SerializeContainerService(containerService *ContainerService, version strin
 		}
 		return b, nil
 
+	case v20170701.APIVersion:
+		v20170701ContainerService := ConvertContainerServiceToV20170701(containerService)
+		armContainerService := &V20170701ARMContainerService{}
+		armContainerService.ContainerService = v20170701ContainerService
+		armContainerService.APIVersion = version
+		b, err := json.MarshalIndent(armContainerService, "", "  ")
+		if err != nil {
+			return nil, err
+		}
+		return b, nil
+
 	case vlabs.APIVersion:
 		vlabsContainerService := ConvertContainerServiceToVLabs(containerService)
 		armContainerService := &VlabsARMContainerService{}
@@ -129,5 +154,32 @@ func SerializeContainerService(containerService *ContainerService, version strin
 
 	default:
 		return nil, fmt.Errorf("invalid version %s for conversion back from unversioned object", version)
+	}
+}
+
+// Sets default container service property values for any appropriate zero values
+func setContainerServiceDefaultsv20160930(c *v20160930.ContainerService) {
+	if c.Properties.OrchestratorProfile == nil {
+		c.Properties.OrchestratorProfile = &v20160930.OrchestratorProfile{
+			OrchestratorType: v20160930.DCOS,
+		}
+	}
+}
+
+// Sets default container service property values for any appropriate zero values
+func setContainerServiceDefaultsv20160330(c *v20160330.ContainerService) {
+	if c.Properties.OrchestratorProfile == nil {
+		c.Properties.OrchestratorProfile = &v20160330.OrchestratorProfile{
+			OrchestratorType: v20160330.DCOS,
+		}
+	}
+}
+
+// Sets default container service property values for any appropriate zero values
+func setContainerServiceDefaultsv20170131(c *v20170131.ContainerService) {
+	if c.Properties.OrchestratorProfile == nil {
+		c.Properties.OrchestratorProfile = &v20170131.OrchestratorProfile{
+			OrchestratorType: v20170131.DCOS,
+		}
 	}
 }

@@ -25,6 +25,7 @@ if [ -e "${ENV_FILE}" ]; then
 fi
 
 EXPECTED_NODE_COUNT="${EXPECTED_NODE_COUNT:-4}"
+EXPECTED_LINUX_NODE_COUNT="${EXPECTED_LINUX_NODE_COUNT:-4}"
 EXPECTED_DNS="${EXPECTED_DNS:-2}"
 EXPECTED_DASHBOARD="${EXPECTED_DASHBOARD:-1}"
 EXPECTED_ORCHESTRATOR_VERSION="${EXPECTED_ORCHESTRATOR_VERSION:-}"
@@ -37,10 +38,10 @@ log "Running test in namespace: ${namespace}"
 trap teardown EXIT
 
 function teardown {
-  kubectl get all --all-namespaces
-  kubectl get nodes
-  kubectl get namespaces
-  kubectl delete namespaces ${namespace}
+  kubectl get all --all-namespaces || echo "teardown error"
+  kubectl get nodes || echo "teardown error"
+  kubectl get namespaces || echo "teardown error"
+  kubectl delete namespaces ${namespace} || echo "teardown error"
 }
 
 # TODO: cleanup the loops more
@@ -66,7 +67,7 @@ function check_node_count() {
     sleep 15; count=$((count-1))
   done
   if (( $node_count != ${EXPECTED_NODE_COUNT} )); then
-    log "gave up waiting for apiserver / node counts"; exit -1
+    log "K8S: gave up waiting for apiserver / node counts"; exit 1
   fi
 }
 
@@ -77,7 +78,7 @@ log "Checking Kubernetes version. Expected: ${EXPECTED_ORCHESTRATOR_VERSION}"
 if [ ! -z "${EXPECTED_ORCHESTRATOR_VERSION}" ]; then
   kubernetes_version=$(kubectl version --short)
   if [[ ${kubernetes_version} != *"Server Version: v${EXPECTED_ORCHESTRATOR_VERSION}"* ]]; then
-    log "unexpected kubernetes version:\n${kubernetes_version}"; exit -1
+    log "K8S: unexpected kubernetes version:\n${kubernetes_version}"; exit 1
   fi
 fi
 
@@ -91,7 +92,7 @@ while (( $count > 0 )); do
   sleep 5; count=$((count-1))
 done
 if (( ${creating_count} != 0 )); then
-  log "gave up waiting for creation to finish"; exit -1
+  log "K8S: gave up waiting for containers"; exit 1
 fi
 
 ###### Check existence and status of essential pods
@@ -112,10 +113,11 @@ while (( $count > 0 )); do
   if [ -z "$(echo $pods | tr -d '[:space:]')" ]; then
     break
   fi
+  sleep 5; count=$((count-1))
 done
 
 if [ ! -z "$(echo $pods | tr -d '[:space:]')" ]; then
-  log "gave up waiting for running pods [$pods]"; exit -1
+  log "K8S: gave up waiting for running pods [$pods]"; exit 1
 fi
 
 ###### Check for Kube-DNS
@@ -128,7 +130,7 @@ while (( $count > 0 )); do
   sleep 5; count=$((count-1))
 done
 if (( ${running} != ${EXPECTED_DNS} )); then
-  log "gave up waiting for kube-dns"; exit -1
+  log "K8S: gave up waiting for kube-dns"; exit 1
 fi
 
 ###### Check for Kube-Dashboard
@@ -141,7 +143,7 @@ while (( $count > 0 )); do
   sleep 5; count=$((count-1))
 done
 if (( ${running} != ${EXPECTED_DASHBOARD} )); then
-  log "gave up waiting for kubernetes-dashboard"; exit -1
+  log "K8S: gave up waiting for kubernetes-dashboard"; exit 1
 fi
 
 ###### Check for Kube-Proxys
@@ -150,9 +152,12 @@ count=12
 while (( $count > 0 )); do
   log "  ... counting down $count"
   running=$(kubectl get pods --namespace=kube-system | grep kube-proxy | grep Running | wc | awk '{print $1}')
-  if (( ${running} == ${EXPECTED_NODE_COUNT} )); then break; fi
+  if (( ${running} == ${EXPECTED_LINUX_NODE_COUNT} )); then break; fi
   sleep 5; count=$((count-1))
 done
+if (( ${running} != ${EXPECTED_LINUX_NODE_COUNT} )); then
+  log "K8S: gave up waiting for kube-proxy"; exit 1
+fi
 
 # get master public hostname
 master=$(kubectl config view | grep server | cut -f 3- -d "/" | tr -d " ")
@@ -175,7 +180,7 @@ for ip in $ips; do
     sleep 5; count=$((count-1))
   done
   if [[ "${success}" == "n" ]]; then
-    log $ret; exit -1
+    log "K8S: gave up verifying proxy"; exit 1
   fi
 done
 
@@ -206,9 +211,9 @@ while (( $count > 0 )); do
   sleep 5; count=$((count-1))
 done
 if (( ${running} != 1 )); then
-  log "gave up waiting for deployment"
+  log "K8S: gave up waiting for deployment"
   kubectl get all --namespace=${namespace}
-  exit -1
+  exit 1
 fi
 
 kubectl expose deployments/nginx --type=LoadBalancer --namespace=${namespace} --port=80
@@ -218,13 +223,13 @@ count=60
 external_ip=""
 while (( $count > 0 )); do
   log "  ... counting down $count"
-	external_ip=$(kubectl get svc --namespace ${namespace} nginx --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
+	external_ip=$(kubectl get svc --namespace ${namespace} nginx --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}" || echo "")
 	[[ ! -z "${external_ip}" ]] && break
 	sleep 10; count=$((count-1))
 done
 if [[ -z "${external_ip}" ]]; then
-  log "gave up waiting for loadbalancer to get an ingress ip"
-  exit -1
+  log "K8S: gave up waiting for loadbalancer to get an ingress ip"
+  exit 1
 fi
 
 log "Checking Service"
@@ -240,8 +245,8 @@ while (( $count > 0 )); do
   sleep 5; count=$((count-1))
 done
 if [[ "${success}" != "y" ]]; then
-  log "failed to get expected response from nginx through the loadbalancer"
-  exit -1
+  log "K8S: failed to get expected response from nginx through the loadbalancer"
+  exit 1
 fi
 
 check_node_count
