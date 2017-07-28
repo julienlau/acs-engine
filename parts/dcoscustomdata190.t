@@ -9,15 +9,7 @@ bootcmd:
   gpt&&touch /var/lib/sde-gpt;fi"
 - bash -c "if [ ! -f /var/lib/sdf-gpt ];then echo DCOS-5890;parted -s /dev/sdf mklabel
   gpt&&touch /var/lib/sdf-gpt;fi"
-- bash -c "if [ ! -f /var/lib/sdg-gpt ];then echo DCOS-5890;parted -s /dev/sdg mklabel
-  gpt&&touch /var/lib/sdg-gpt;fi"
-- bash -c "if [ ! -f /var/lib/sdh-gpt ];then echo DCOS-5890;parted -s /dev/sdh mklabel
-  gpt&&touch /var/lib/sdh-gpt;fi"
-- bash -c "if [ ! -f /var/lib/sdi-gpt ];then echo DCOS-5890;parted -s /dev/sdi mklabel
-  gpt&&touch /var/lib/sdi-gpt;fi"
-- bash -c "if [ ! -f /var/lib/sdj-gpt ];then echo DCOS-5890;parted -s /dev/sdj mklabel
-  gpt&&touch /var/lib/sdj-gpt;fi"
-- bash -c "mkdir -p /dcos/volume{0,1,2,3,4,5,6,7}"
+- bash -c "mkdir -p /dcos/volume{0,1,2,3}"
 disk_setup:
   ephemeral0:
     layout:
@@ -39,22 +31,6 @@ disk_setup:
     overwrite: true
     table_type: gpt
   /dev/sdf:
-    layout: true
-    overwrite: true
-    table_type: gpt
-  /dev/sdg:
-    layout: true
-    overwrite: true
-    table_type: gpt
-  /dev/sdh:
-    layout: true
-    overwrite: true
-    table_type: gpt
-  /dev/sdi:
-    layout: true
-    overwrite: true
-    table_type: gpt
-  /dev/sdj:
     layout: true
     overwrite: true
     table_type: gpt
@@ -80,18 +56,6 @@ fs_setup:
 - device: /dev/sdf1
   filesystem: ext4
   overwrite: true
-- device: /dev/sdg1
-  filesystem: ext4
-  overwrite: true
-- device: /dev/sdh1
-  filesystem: ext4
-  overwrite: true
-- device: /dev/sdi1
-  filesystem: ext4
-  overwrite: true
-- device: /dev/sdj1
-  filesystem: ext4
-  overwrite: true
 mounts:
 - - ephemeral0.1
   - /var/lib/mesos
@@ -107,14 +71,6 @@ mounts:
   - /dcos/volume2
 - - /dev/sdf1
   - /dcos/volume3
-- - /dev/sdg1
-  - /dcos/volume4
-- - /dev/sdh1
-  - /dcos/volume5
-- - /dev/sdi1
-  - /dcos/volume6
-- - /dev/sdj1
-  - /dcos/volume7
 runcmd:
 - /usr/lib/apt/apt.systemd.daily
 - echo 2dd1ce17-079e-403c-b352-a1921ee207ee > /sys/bus/vmbus/drivers/hv_util/unbind # mitigation for bug https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1676635

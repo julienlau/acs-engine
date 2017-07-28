@@ -16,9 +16,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Azure/acs-engine/test/acs-engine-test/config"
-	"github.com/Azure/acs-engine/test/acs-engine-test/metrics"
-	"github.com/Azure/acs-engine/test/acs-engine-test/report"
+	"acs-engine/test/acs-engine-test/config"
+	"acs-engine/test/acs-engine-test/metrics"
+	"acs-engine/test/acs-engine-test/report"
 )
 
 const (

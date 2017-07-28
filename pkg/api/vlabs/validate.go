@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/Azure/acs-engine/pkg/api/common"
+	"acs-engine/pkg/api/common"
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
