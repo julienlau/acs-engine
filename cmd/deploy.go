@@ -180,37 +180,34 @@ func autofillApimodel(dc *deployCmd) {
 
 	if !useManagedIdentity {
 		spp := dc.containerService.Properties.ServicePrincipalProfile
-		if spp != nil && !(spp.ClientID == "" && spp.Secret == "") {
-			log.Fatal("apimodel invalid: ServicePrincipalProfile is missing either the clientid or secret.")
-		}
+		if spp != nil && spp.ClientID == "" && spp.Secret == "" && spp.KeyvaultSecretRef == "" {
+			log.Warnln("apimodel: ServicePrincipalProfile was missing or empty, creating application...")
 
-		log.Warnln("apimodel: ServicePrincipalProfile was empty, creating application...")
-
-		// TODO: consider caching the creds here so they persist between subsequent runs of 'deploy'
-		appName := dc.containerService.Properties.MasterProfile.DNSPrefix
-		appURL := fmt.Sprintf("https://%s/", appName)
-		applicationID, servicePrincipalObjectID, secret, err := dc.client.CreateApp(appName, appURL)
-		if err != nil {
-			log.Fatalf("apimodel invalid: ServicePrincipalProfile was empty, and we failed to create valid credentials: %q", err)
-		}
-		log.Warnf("created application with applicationID (%s) and servicePrincipalObjectID (%s).", applicationID, servicePrincipalObjectID)
-
-		log.Warnln("apimodel: ServicePrincipalProfile was empty, assigning role to application...")
-		for {
-			err = dc.client.CreateRoleAssignmentSimple(dc.resourceGroup, servicePrincipalObjectID)
+			// TODO: consider caching the creds here so they persist between subsequent runs of 'deploy'
+			appName := dc.containerService.Properties.MasterProfile.DNSPrefix
+			appURL := fmt.Sprintf("https://%s/", appName)
+			applicationID, servicePrincipalObjectID, secret, err := dc.client.CreateApp(appName, appURL)
 			if err != nil {
-				log.Warnf("Failed to create role assignment (will retry): %q", err)
-				time.Sleep(3 * time.Second)
-				continue
+				log.Fatalf("apimodel invalid: ServicePrincipalProfile was empty, and we failed to create valid credentials: %q", err)
 			}
-			break
-		}
+			log.Warnf("created application with applicationID (%s) and servicePrincipalObjectID (%s).", applicationID, servicePrincipalObjectID)
 
-		dc.containerService.Properties.ServicePrincipalProfile = &api.ServicePrincipalProfile{
-			ClientID: applicationID,
-			Secret:   secret,
-		}
+			log.Warnln("apimodel: ServicePrincipalProfile was empty, assigning role to application...")
+			for {
+				err = dc.client.CreateRoleAssignmentSimple(dc.resourceGroup, servicePrincipalObjectID)
+				if err != nil {
+					log.Warnf("Failed to create role assignment (will retry): %q", err)
+					time.Sleep(3 * time.Second)
+					continue
+				}
+				break
+			}
 
+			dc.containerService.Properties.ServicePrincipalProfile = &api.ServicePrincipalProfile{
+				ClientID: applicationID,
+				Secret:   secret,
+			}
+		}
 	}
 }
 
