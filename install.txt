@@ -1,5 +1,10 @@
 GOFILES=`go list ./... | grep -v "acs-engine/vendor" | sed 's|github.com/Azure/acs-engine|.|g' | grep -v -w '^.$$'`
 go get all
+go get -u github.com/jteeuwen/go-bindata/...
+cd pkg/acsengine
+go generate -v
+cd pkg/i18n
+go generate -v
 go generate -v $GOFILES
 go build -v
 go install -v
