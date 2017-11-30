@@ -3,8 +3,10 @@ go get all
 go get -u github.com/jteeuwen/go-bindata/...
 cd pkg/acsengine
 go generate -v
+cd ../..
 cd pkg/i18n
 go generate -v
+cd ../..
 go generate -v $GOFILES
 go build -v
 go install -v
